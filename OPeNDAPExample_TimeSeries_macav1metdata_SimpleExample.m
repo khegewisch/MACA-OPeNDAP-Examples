@@ -1,10 +1,11 @@
-%macav1metdata_OPeNDAPExample_simple.m
-%author:Katherine Hegewisch (khegewisch@uidaho.edu)
-%updated: 01/01/2015
-%This MATLAB script is run using MATLAB R2012a (which has native OPeNDAP support)
-%Older matlab versions need to get OpenEarthTools
-%For more information on using OPeNDAP in Matlab, 
-%see http://www.mathworks.com/help/matlab/ref/ncread.html
+%Filename: 	OPeNDAPExample_TimeSeries_macav1metdata_SimpleExample.m
+%Author:	Katherine Hegewisch (khegewisch@uidaho.edu)
+%Updated: 	01/01/2015
+%Description: This script uses OPeNDAP to download the specified subset of the MACAv1-METDATA data
+%Requirements: 	This MATLAB script is run using MATLAB R2012a (which has native OPeNDAP support)
+%		Older matlab versions need to get OpenEarthTools
+%		For more information on using OPeNDAP in Matlab, 
+%		see http://www.mathworks.com/help/matlab/ref/ncread.html
 %=============================================
 %      SET TARGET DATA
 %=============================================
