@@ -1,11 +1,7 @@
-%Filename: 	OPeNDAPExample_TimeSeries_macav2livneh_AdvancedExample.m
-%Author: 	Heather Dinon Aldridge (hadinon@ncsu.edu)
-%Description: 	This script uses OPeNDAP to download the specified subset of the MACAv2-LIVNEH data
-%Requirements: 	R version ?
-%	       	Older matlab versions need to get OpenEarthTools
-%	       	For more information on using OPeNDAP in Matlab, 
-%	       	see http://www.mathworks.com/help/matlab/ref/ncread.html
-
+%Filename: 	OPeNDAPExample_TimeSeries_macav2metdata_AdvancedExample.m
+%Author: 	John Mejia
+%Description: 	This script uses OPeNDAP to download the specified subset of the MACAv2-METDATA data
+%Requirements: 	IDL version ?
 
 UNDER CONSTRUCTION
 
