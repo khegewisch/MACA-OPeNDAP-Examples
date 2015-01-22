@@ -1,5 +1,10 @@
 #!/usr/bin/python
-#This script was run using Python 2.7.3, the Enthought distribution (www.enthought.com)
+%Filename: 	OPeNDAPExample_TimeSeries_macav1metdata_SimpleExample.py
+%Author:	K. Hegewisch (khegewisch@uidaho.edu)
+%Updated: 	01/01/2015
+%Description: 	This script uses OPeNDAP to download the specified subset of the MACAv1-METDATA data
+%Requirements: 	This script was run using Python 2.7.3, the Enthought distribution (www.enthought.com)
+%	        Python comes with native OPeNDAP support.	
 #=========================================================
 from netCDF4 import Dataset
 import numpy as np
