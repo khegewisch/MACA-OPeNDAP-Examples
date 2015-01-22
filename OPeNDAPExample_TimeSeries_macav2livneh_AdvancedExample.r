@@ -2,9 +2,9 @@
 %Author: 	Heather Dinon Aldridge (hadinon@ncsu.edu)
 %Description: 	This script uses OPeNDAP to download the specified subset of the MACAv2-LIVNEH data
 %Requirements: 	R version ?
-%	       Older matlab versions need to get OpenEarthTools
-%	       For more information on using OPeNDAP in Matlab, 
-%	       see http://www.mathworks.com/help/matlab/ref/ncread.html
+%	       	Older matlab versions need to get OpenEarthTools
+%	       	For more information on using OPeNDAP in Matlab, 
+%	       	see http://www.mathworks.com/help/matlab/ref/ncread.html
 %=============================================
 %      SET TARGET DATA -modify only the parameters in this section
 %=============================================
