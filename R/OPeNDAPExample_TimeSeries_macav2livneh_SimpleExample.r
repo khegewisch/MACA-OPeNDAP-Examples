@@ -1,71 +1,64 @@
-%Filename: 	OPeNDAPExample_TimeSeries_macav2livneh_SimpleExample.r
-%Author:	Heather Dinon Aldridge (hadinon@ncsu.edu)
-%Updated: 	01/01/2015
-%Description: 	This script uses OPeNDAP to download the specified subset of the MACAv2-LIVNEH data
-%Requirements: 	This R script is run using R version? 
-%     		Comment about version necessary for OPeNDAP support here.. 
-%		Older matlab versions need to get OpenEarthTools
-%		For more information on using OPeNDAP in Matlab, 
-%		see http://www.mathworks.com/help/matlab/ref/ncread.html
+################### OPeNDAP EXAMPLE SCRIPT: SIMPLE ########################################
+##### FILENAME: OPeNDAPExample_TimeSeries_macav2livneh_SimpleExample.r   ##################
+##### PURPOSE: THIS SCRIPT PULLS ONE POINT AND ALL TIME STEPS FROM A MACA DATA FILE #######
+##### AUTHOR: HEATHER DINON ALDRIDGE (hadinon@ncsu.edu) ###################################
+##### UPDATED: FEBRUARY 5, 2015                      ######################################
+##### THIS SCRIPT IS RUN USING R version 3.0.1 (2013-05-16) ###############################
+##### FOR MORE INFORMATION ON THE ncdf4 R PACKAGE, SEE: ###################################
+##### http://cran.r-project.org/web/packages/ncdf4/ncdf4.pdf ##############################
+##### ANOTHER WAY TO ACCESS DATA USING OPeNDAP CAN BE FOUND HERE: #########################
+##### http://lukemiller.org/index.php/2011/02/accessing-noaa-tide-data-with-r/ ############
+###########################################################################################
 
-UNDER CONSTRUCTION
+  ## LOAD THE REQUIRED LIBRARY
+  library(ncdf4)
 
+  ### DEFINE THE URL
+  urltotal<-"http://convection.meas.ncsu.edu:8080/thredds/dodsC/pinemap/maca/past/macav2livneh_pr_bcc-csm1-1-m_historical_1970_1989_CONUS.nc"
 
-%=============================================
-%      SET TARGET DATA
-%=============================================
-day =1;
-lat_target=45.0;
-lon_target=-103.0+360;
-%=============================================
-%      SET OPENDAP PATH
-%=============================================
-pathname = 'http://inside-dev1.nkn.uidaho.edu:8080/thredds/dodsC/agg_macav1metdata_huss_BNU-ESM_r1i1p1_historical_1950_2005_WUSA.nc'; %this is for macav1-metdata only
-%Look at the contents of the file
+  ## OPEN THE FILE
+  nc <- nc_open(urltotal)
 
-ncdisp(pathname)  %some command to display the metadata from netcdf in R
-%=============================================
-%      GET DATA SIZES
-%=============================================
-%this section extracts time,lat,lon info from netcdf
-timeinfo = ncinfo(pathname,'time');
-timeSize =timeinfo.Size;
-loninfo = ncinfo(pathname,'lon');
-lonSize =loninfo.Size;
-latinfo = ncinfo(pathname,'lat');
-latSize =latinfo.Size;
-vinfo = ncinfo(pathname,'specific_humidity');
-vSize =vinfo.Size;
-% the dimensions are:lon,lat,time
-%=============================================
-%      GET DATA
-%=============================================
-lat =ncread(pathname,'lat');
-lon =ncread(pathname,'lon');
-%=============================================
-%find indices of target lat/lon/day
-[m,lat_index] = min(abs(lat-lat_target));
-[m,lon_index] = min(abs(lon-lon_target));
-lat=lat(lat_index);
-lon=lon(lon_index);
-%=============================================
-time_index = [day:365:timeSize];
-time =ncread(pathname,'time',1,Inf,365);
-%=============================================
-%data has 3 dimensions: time, lat,lon
-start=[lon_index lat_index time_index(1)];
-count=[length(lon) length(lat) length(time)];
-stride=[1 1 365];  %every year of data
-data=squeeze(ncread(pathname,'specific_humidity',start,count,stride));
-%=============================================
-%      MAKE A PLOT
-%=============================================
-yearref=1950;
-years = [1950:1950+length(time)-1];
-figure(1);
-plot(years,data,'b-');
-xlabel('Years');
-ylabel('Specific Humidity');
-title(['Specific Humidity on Day ',num2str(day),' (',num2str(lat),'N, ',num2str(360-lon),'W)']);
-filename = 'myMatlabGraph.png';
-print(filename,'-dpng');
+  ## SHOW SOME METADATA 
+  nc
+  
+  ## DISPLAY INFORMATION ABOUT AN ATTRIBUTE
+  ncatt_get(nc,"precipitation")
+ 
+  ## GET DATA SIZES: http://www.inside-r.org/packages/cran/ncdf4/docs/ncvar_get
+  ## NOTE: FILE DIMENSIONS ARE lon,lat,time
+  v3 <- nc$var[[1]]
+  lonsize <- v3$varsize[1]
+  latsize <- v3$varsize[2] 
+  endcount <- v3$varsize[3] 
+
+  ### DEFINE OUR POINT OF INTEREST 
+  ## NOTE: MAKE SURE TO CHECK WHETHER YOUR SOURCE STARTS COUNTING AT 0 OR 1
+  ## e.g. ncdf4 PACKAGE STARTS COUNTING AT 1 BUT OPeNDAP DATASET ACCESS FORM STARTS AT 0:
+  ## http://convection.meas.ncsu.edu:8080/thredds/dodsC/pinemap/maca/past/macav2livneh_pr_bcc-csm1-1-m_historical_1970_1989_CONUS.nc.html
+  lon=478
+  lat=176
+
+  ## DEFINE OUR VARIABLE NAME 
+  var="precipitation"
+  
+  ## READ THE DATA VARIABLE (e.g. precipitation IN THIS CASE): http://www.inside-r.org/packages/cran/ncdf4/docs/ncvar_get 
+  ## AND http://stackoverflow.com/questions/19936432/faster-reading-of-time-series-from-netcdf
+  ## ORDER OF start= AND count= IS BASED ON ORDER IN BRACKETS AFTER VARIABLE NAME (SHOWN WHEN DISPLAYING YOUR METADATA)
+  ## FROM THE DOCUMENTATION... "If [start] not specified, reading starts at the beginning of the file (1,1,1,...)."
+  ## AND "If [count] not specified and the variable does NOT have an unlimited dimension, the entire variable is read. 
+  ## As a special case, the value "-1" indicates that all entries along that dimension should be read."
+  data <- ncvar_get(nc, var, start=c(lon,lat,1),count=c(1,1,endcount))
+  ## READ THE TIME VARIABLE
+  time <- ncvar_get(nc, "time", start=c(1),count=c(endcount))
+  ## CONVERT TIME FROM "days since 1900-01-01" TO YYYY-MM-DD
+  time=as.Date(time, origin="1900-01-01") ##note: assumes leap years! http://stat.ethz.ch/R-manual/R-patched/library/base/html/as.Date.html
+  # PUT EVERYTHING INTO A DATA FRAME
+  c <- data.frame(time,data)
+
+  ## CLOSE THE FILE
+  nc_close(nc)
+
+  ## PLOT THE DATA 
+  plot(c$time,c$data,main=paste("Daily ",var," for ",c$time[1]," through ",c$time[nrow(c)], " at ",lat,",",lon,sep=""),xlab="Date",ylab="Precipitation (mm)")
+  
