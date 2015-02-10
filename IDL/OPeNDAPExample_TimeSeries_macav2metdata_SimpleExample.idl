@@ -1,68 +1,44 @@
-%Filename: 	OPeNDAPExample_TimeSeries_macav2metdata_SimpleExample.idl
-%Author:	John Mejia ()
-%Updated: 	01/01/2015
-%Description: 	This script uses OPeNDAP to download the specified subset of the MACAv2-METDATA data
-%Requirements: 	This IDL script is run using IDL version? 
-%     		Comment about version necessary for OPeNDAP support here.. 
+;Filename: 	OPeNDAPExample_TimeSeries_macav2metdata_SimpleExample.idl
+;Author:	Katherine Hegewisch (khegewisch@uidaho.edu) from John Mejia's Advanced Example
+;Updated: 	02/10/2015
+;Description: 	This script uses OPeNDAP to download the specified subset of a MACAv2-METDATA file
+;Requirements: 	This IDL script is run using IDL version 8.4. IDL version 8.2 didn't work with OPeNDAP.
 
-UNDER CONSTRUCTION
+;=============================================
+;      SET TARGET DATA
+;=============================================
+;day =1;
+lat_target=34.949852;
+lon_target=-117.887785+360;
+;=============================================
+;      SET OPENDAP PATH, GET FILENAMES FROM CATALOG
+;=============================================
+urlnetcdf = 'http://inside-dev1.nkn.uidaho.edu:8080/thredds/dodsC/agg_macav1metdata_huss_BNU-ESM_r1i1p1_historical_1950_2005_WUSA.nc'; %this is for macav1-metdata only
+cdfid = ncdf_open(urlnetcdf)
 
-
-%=============================================
-%      SET TARGET DATA
-%=============================================
-day =1;
-lat_target=45.0;
-lon_target=-103.0+360;
-%=============================================
-%      SET OPENDAP PATH
-%=============================================
-pathname = 'http://inside-dev1.nkn.uidaho.edu:8080/thredds/dodsC/agg_macav1metdata_huss_BNU-ESM_r1i1p1_historical_1950_2005_WUSA.nc'; %this is for macav1-metdata only
-%Look at the contents of the file
-
-ncdisp(pathname)  %some command to display the metadata from netcdf in R
-%=============================================
-%      GET DATA SIZES
-%=============================================
-%this section extracts time,lat,lon info from netcdf
-timeinfo = ncinfo(pathname,'time');
-timeSize =timeinfo.Size;
-loninfo = ncinfo(pathname,'lon');
-lonSize =loninfo.Size;
-latinfo = ncinfo(pathname,'lat');
-latSize =latinfo.Size;
-vinfo = ncinfo(pathname,'specific_humidity');
-vSize =vinfo.Size;
-% the dimensions are:lon,lat,time
-%=============================================
-%      GET DATA
-%=============================================
-lat =ncread(pathname,'lat');
-lon =ncread(pathname,'lon');
-%=============================================
-%find indices of target lat/lon/day
-[m,lat_index] = min(abs(lat-lat_target));
-[m,lon_index] = min(abs(lon-lon_target));
-lat=lat(lat_index);
-lon=lon(lon_index);
-%=============================================
-time_index = [day:365:timeSize];
-time =ncread(pathname,'time',1,Inf,365);
-%=============================================
-%data has 3 dimensions: time, lat,lon
-start=[lon_index lat_index time_index(1)];
-count=[length(lon) length(lat) length(time)];
-stride=[1 1 365];  %every year of data
-data=squeeze(ncread(pathname,'specific_humidity',start,count,stride));
-%=============================================
-%      MAKE A PLOT
-%=============================================
-yearref=1950;
-years = [1950:1950+length(time)-1];
-figure(1);
-plot(years,data,'b-');
-xlabel('Years');
-ylabel('Specific Humidity');
-title(['Specific Humidity on Day ',num2str(day),' (',num2str(lat),'N, ',num2str(360-lon),'W)']);
-filename = 'myMatlabGraph.png';
-print(filename,'-dpng');
+;Look at the contents of the file
+inq= ncdf_inquire(cdfid)
+;=============================================
+;      GET LAT/LON/TIME
+;=============================================
+ncdf_varget, cdfid, 'lon', xlon
+ncdf_varget, cdfid, 'lat', xlat
+ncdf_varget, cdfid, 'time', time
+;=============================================
+;      FIND INDICES of CLOSEST GRID
+;=============================================
+;find indices of target lat/lon/day
+dist=abs(lat0-xlat)
+y0=where(dist eq min(dist))
+dist=abs(lon0-xlon)
+x0=where(dist eq min(dist))
+;=============================================
+;     GET DATA 
+;=============================================
+;data has 3 dimensions: lon,lat,time
+ncdf_varget, cdfid, mainvar,var,COUNT=[1, 1, n_elements(time)], OFFSET=[x0, y0, 0]
+;=============================================
+;     CLOSE FILE
+;=============================================
+ncdf_close,cdfid  
+;=============================================

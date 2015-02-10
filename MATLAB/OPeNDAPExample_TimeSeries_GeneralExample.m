@@ -1,4 +1,4 @@
-%Filename: 	OPeNDAPExample_TimeSeries_macav1metdata_GeneralExample.m
+%Filename: 	OPeNDAPExample_TimeSeries_GeneralExample.m
 %Author:	K. Hegewisch (khegewisch@uidaho.edu, Jun 2014)
 %Updated: 	02/01/2015
 %Description: 	This script uses OPeNDAP to download the specified subset of the MACAv1-METDATA data
@@ -15,7 +15,7 @@ product_target=3;     %specifies index of PRODUCT below to extract
 %geographical region
 lat_target=[45.0 45.2];  %min/max of latitude range
 lon_target=[-103.0 -103.5]+360; %min/max of longitude range
-regionName='MYREGION';   %name of region to add onto outputFileName
+myregion='MYREGION';
 
 %variables,models
 %var_target=[1 2 5 9]; %specifies index of VAR_NAME below to extract
@@ -31,7 +31,7 @@ exp_target=[1]; %specifices indidces of EXP_NAME below to extract
 NKNTHREDDS='http://thredds.northwestknowledge.net:8080/thredds';
 REACCHTHREDDS='http://inside-dev1.nkn.uidaho.edu:8080/thredds';
 THREDDSDIR={[REACCHTHREDDS,'/dodsC/'];[NKNTHREDDS,'/dodsC/'];[REACCHTHREDDS,'/dodsC/'];};
-
+REGION_NAME={'WUSA';'CONUS';'CONUS';};
 %=============================================
 %     PARAMETERS
 %=============================================
@@ -58,13 +58,15 @@ outputFileName=[char(PRODUCT(product_target)),'_subset_',regionName,'.mat'];
 %=============================================
 %look at sample file
 productname=char(PRODUCT(product_target));
+threddsDir = char(THREDDSDIR(product_target));
+regionname = char(REGION_NAME(product_target));
 if(strcmp(productname,'macav2livneh'));
-	pathname=[char(threddsDir{product_target}),productname,'_huss_BNU-ESM_r1i1p1_historical_1950-2005_CONUS_daily_aggregated.nc'];
+	pathname=[threddsDir,productname,'_huss_BNU-ESM_r1i1p1_historical_1950-2005_CONUS_daily_aggregated.nc'];
 	%pathname will change from 1950-2005 to 1950_2005 soon
 elseif(strcmp(productname,'macav2metdata'));
-	pathname=[char(threddsDir{product_target}),'agg_',productname,'_huss_BNU-ESM_r1i1p1_historical_1950_2005_CONUS_daily.nc'];
+	pathname=[threddsDir,'agg_',productname,'_huss_BNU-ESM_r1i1p1_historical_1950_2005_CONUS_daily.nc'];
 elseif(strcmp(productname,'macav1metdata'));
-	pathname=[char(threddsDir{product_target}),'agg_',productname,'_huss_BNU-ESM_r1i1p1_historical_1950_2005_WUSA.nc'];
+	pathname=[threddsDir,'agg_',productname,'_huss_BNU-ESM_r1i1p1_historical_1950_2005_WUSA.nc'];
 end;
 
 loninfo = ncinfo(pathname,'lon');
@@ -99,27 +101,24 @@ m.units =UNITS(var_target);
 m.scenarios=EXP_NAME(exp_target);
 m.days='1-365 noleap day starting from Jan 1 - Dec 31';
 
-threddsDir = char(THREDDSDIR(product_target));
-regionname= char(REGIONNAME(product_target));
 for var=1:length(var_target);
-        varname=char(VAR_NAME(var_target(var));
+        varname=char(VAR_NAME(var_target(var)));
 	for model = 1:length(model_target);
 		modelname=char(MODEL_NAME(model_target(model)));
 		runname=char(RUN_NUM(model));
 		%====================	
 		%get historical part
 		%====================	
-		time_string='1950_2005';
 		pathname=[threddsDir,productname];
 
 		middlePath=[varname,'_',modelname,'_',...
 			'r',runname,'i1p1_',...
 			'historical_',time_string,'_',...
-			regionName];
+			regionname];
 
-
+		time_string='1950_2005';
 		if(strcmp(productname,'macav2livneh'));
-			time_string='1950-2005';
+			time_string='1950-2005'; %this will change soon
 			pathname=[pathname,middlePath,'aggregated.nc'];
 		elseif(strcmp(productname,'macav2metdata'));
 			pathname=[pathname,'agg_',middlePath,'_',regionname,'_daily.nc'];
