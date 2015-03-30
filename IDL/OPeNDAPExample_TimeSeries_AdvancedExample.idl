@@ -1,4 +1,4 @@
-;Filename: 	OPeNDAPExample_TimeSeries_macav2metdata_SimpleExample.idl
+;Filename: 	OPeNDAPExample_TimeSeries_SimpleExample.idl
 ;Author:	John Mejia (john.mejia@dri.edu), modified by Katherine Hegewisch(khegewisch@uidaho.edu)
 ;Updated: 	02/10/2015
 ;Description: 	This script uses OPeNDAP to download the specified subset of each of the 3 MACA products

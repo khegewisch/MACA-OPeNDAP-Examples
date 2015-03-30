@@ -1,4 +1,4 @@
-;Filename: 	OPeNDAPExample_TimeSeries_macav2metdata_SimpleExample.idl
+;Filename: 	OPeNDAPExample_TimeSeries_SimpleExample.idl
 ;Author:	Katherine Hegewisch (khegewisch@uidaho.edu) from John Mejia's Advanced Example
 ;Updated: 	02/10/2015
 ;Description: 	This script uses OPeNDAP to download the specified subset of a MACAv2-METDATA file
