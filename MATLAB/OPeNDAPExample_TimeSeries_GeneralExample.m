@@ -1,6 +1,6 @@
 %Filename: 	OPeNDAPExample_TimeSeries_GeneralExample.m
 %Author:	K. Hegewisch (khegewisch@uidaho.edu, Mar 2015)
-%Updated: 	02/01/2015
+%Updated: 	03/12/2017
 %Description: 	This script uses OPeNDAP to download the specified subset of a MACAv2METDATA dataset
 %Requirements: 	MATLAB R2012a or later (which has native OPeNDAP support)
 %	       	Older matlab versions need to get OpenEarthTools
