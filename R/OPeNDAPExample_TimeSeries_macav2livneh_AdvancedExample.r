@@ -26,12 +26,12 @@ outputFileName='maca_subset.mat'
 %=============================================
 %      SET OPENDAP PATH DIRECTORY
 %=============================================
-pathDir='http://inside-dev1.nkn.uidaho.edu:8080/thredds/dodsC/'; %(this is for MACAv1-METDATA only)
+pathDir='http://thredds.northwestknowledge.net:8080/thredds/dodsC/'; %(this is for MACAv2-METDATA only)
 %=============================================
 %      GET LAT/LON INDICES FOR GEOGRAPHICAL SUBSET
 %=============================================
 %look at sample file
-pathname=[pathDir,'agg_macav1metdata_huss_BNU-ESM_r1i1p1_historical_1950_2005_WUSA.nc'];
+pathname=[pathDir,'macav2livneh_huss_BNU-ESM_r1i1p1_historical_1950-2005_CONUS_daily_aggregated.nc'];
 loninfo = ncinfo(pathname,'lon');
 lonSize =loninfo.Size;
 latinfo = ncinfo(pathname,'lat');
