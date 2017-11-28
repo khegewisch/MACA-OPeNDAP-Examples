@@ -1,0 +1,9 @@
+##### AUTHOR: HEATHER DINON ALDRIDGE (hadinon@ncsu.edu) ###################################
+##### UPDATED: FEBRUARY 5, 2015                      ######################################
+
+Here are some "tricks" for faster reading of the data:
+1) Use NCO to concatenate all files into one -- I've chosen to break this down by model, variable, and what I call "type", which means model baseline, RCP4.5, or RCP8.5 so there will be one file per model and per type and per variable. If I did my counts properly, there should be 360 total files to loop through.
+2) If you are trying to pull a time series of all times within the file or basically if your number of time slices exceeds the number of lat/lons you want to extract, re-order the dimensions associated with your variable so that time is first (note: for some reason, ncdf4 package reverses the order of the dimensions associated with the variable you are extracting so you may have to "trick" it by using NCO to make the order opposite of what you want)
+3) Remove any record dimension from the netCDFs, e.g. make sure all dimensions are limited
+
+Based on the above, I have been running some speed tests on files that I created from the daily MACA grids (e.g. monthly frost days, monthly mean temperature, etc). To extract about 3,768 points (all points associated with HUC12s in AR) from an annual file with monthly data in it (so 12 time steps total), ncdf4 took 5 minutes. When I followed the steps above and extracted those same 3,768 points for the first year (12 time steps) from the concatenated file of all years, ncdf4 took only 0.11 minutes. 
