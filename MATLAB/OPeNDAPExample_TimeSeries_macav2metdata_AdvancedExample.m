@@ -1,15 +1,11 @@
-%Filename: 	OPeNDAPExample_TimeSeries_macav2livneh_AdvancedExample.m
-%Author: 	Heather Dinon Aldridge (hadinon@ncsu.edu)
-%Description: 	This script uses OPeNDAP to download the specified subset of the MACAv2-LIVNEH data
-%Requirements: 	R version ?
+%Filename: 	OPeNDAPExample_TimeSeries_macav2metdata_AdvancedExample.m
+%Author:	K. Hegewisch (khegewisch@uidaho.edu)
+%Updated: 	03/13/2017
+%Description: 	This script uses OPeNDAP to download the specified subset of the MACAv2-METDATA data
+%Requirements: 	MATLAB R2012a or later (which has native OPeNDAP support)
 %	       	Older matlab versions need to get OpenEarthTools
 %	       	For more information on using OPeNDAP in Matlab, 
 %	       	see http://www.mathworks.com/help/matlab/ref/ncread.html
-
-
-UNDER CONSTRUCTION
-
-
 %=============================================
 %      SET TARGET DATA -modify only the parameters in this section
 %=============================================
@@ -26,12 +22,13 @@ outputFileName='maca_subset.mat'
 %=============================================
 %      SET OPENDAP PATH DIRECTORY
 %=============================================
-pathDir='http://thredds.northwestknowledge.net:8080/thredds/dodsC/'; %(this is for MACAv2-METDATA only)
+pathDir='http://thredds.northwestknowledge.net:8080/thredds/dodsC/'; %(for macav2-metdata only)
+%agg_macav2metdata_huss_BNU-ESM_r1i1p1_historical_1950_2005_CONUS_daily.nc
 %=============================================
 %      GET LAT/LON INDICES FOR GEOGRAPHICAL SUBSET
 %=============================================
 %look at sample file
-pathname=[pathDir,'macav2livneh_huss_BNU-ESM_r1i1p1_historical_1950-2005_CONUS_daily_aggregated.nc'];
+pathname=[pathDir,'agg_macav2metdata_huss_BNU-ESM_r1i1p1_historical_1950_2005_CONUS_daily.nc']
 loninfo = ncinfo(pathname,'lon');
 lonSize =loninfo.Size;
 latinfo = ncinfo(pathname,'lat');
@@ -47,6 +44,13 @@ lon_index = find(lon<=max(lon_target)&lon>=min(lon_target));lon_index=[min(lon_i
 %subsetted lat/lon
 lat=lat(lat_index);
 lon=lon(lon_index);
+
+time =ncread(pathname,'time');
+index_days_historical=1:length(time);
+
+pathname=[pathDir,'agg_macav2metdata_huss_BNU-ESM_r1i1p1_rcp45_2006_2099_CONUS_daily.nc']
+time =ncread(pathname,'time');
+index_days_future=index_days_historical+1:index_days_historical+length(time);
 
 %=============================================
 %     PARAMETERS 
@@ -69,7 +73,7 @@ RUN_NUM = ones(20,1);f=find(strcmp(MODEL_NAME,'CCSM4'));RUN_NUM(f) = 6;
 years_hist=[1950:2005];index_years_hist=years_hist-1950+1;
 years_fut=[2006:2099];
 m=matfile(outputFileName,'Writable',true);
-m.data = NaN(length(lat),length(lon),365,length(years_hist)+length(years_fut),length(exp_target),...
+m.data = NaN(length(lat),length(lon),length(index_days_historical)+length(index_days_future),length(exp_target),...
 	length(model_target),length(var_target));
 %add metadata to the file along with the data
 m.years = [1950:2099];
@@ -77,7 +81,7 @@ m.models=MODEL_NAME(model_target);
 m.variables=VAR_NAME(var_target);
 m.units =UNITS(var_target);
 m.scenarios=EXP_NAME(exp_target);
-m.days='1-365 noleap day starting from Jan 1 - Dec 31';
+m.days='1-366 where the leap day will be on day 60 if present';
 
 for var=1:length(var_target);
 	for model = 1:length(model_target);
@@ -86,17 +90,16 @@ for var=1:length(var_target);
 		%get historical part
 		%====================	
 		time_string='1950_2005';
-		myURL=[pathDir,'agg_macav1metdata_',char(VAR_NAME(var_target(var))),'_',...
+		myURL=[pathDir,'agg_macav2metdata_',char(VAR_NAME(var_target(var))),'_',...
 			char(MODEL_NAME(model_target(model))),'_',...
 			'r',num2str(RUN_NUM(model)),'i1p1_',...
-			'historical_',char(time_string),'_WUSA.nc'];
+			'historical_',char(time_string),'_CONUS_daily.nc'];
 		timeinfo = ncinfo(myURL,'time');
 		timeSize =timeinfo.Size;
 		vinfo = ncinfo(myURL,char(VAR_LONGNAME(var_target(var))));
 		vSize =vinfo.Size; %the dimensions are:lon,lat,time
 
-		%don't need to do this.. shouldn't have to do this at all anymore...
-		%need to access just a small time slice first.. before getting the data 
+		%need to access just a small time slice first.. before getting the data-like a warmup
 		%(solution credit:Ian Pfingsten)
 		tempdata=ncread(myURL,char(VAR_LONGNAME(var_target(var))),[1 1 1],[1 1 1],[1 1 1]);
 
@@ -105,42 +108,32 @@ for var=1:length(var_target);
 		stride=[1 1 1];  %every year of data, all lat/lon in range
 		tempdata=ncread(myURL,char(VAR_LONGNAME(var_target(var))),start,count,stride);
 
-		%change daily precipitation_flux to daily precipitation in mm (MACAv1-METDATA only)
-		if(var==5); 
-			tempdata =tempdata*3600*24;
-		end;
-
-		%restructure so has dimensions lon,lat,days,years
-		tempdata = reshape(tempdata,length(lon),length(lat),365,timeSize/365);
-		%restructure so has dimensions lat,lon,days,years
-		tempdata=permute(tempdata,[2 1 3 4]);
+		%restructure so has dimensions lon,lat,days
+		time =ncread(pathname,'time');
+		[Y M D] =datevec(double(time)+datenum(1900,1,1));
+		tempdata=permute(tempdata,[2 1 3]); %switch dimension to lon,lat,days
 
 		%save a copy of the historical part for all future scenarios in array
 		for exp=1:length(exp_target);
-			m.data(:,:,:,index_years_hist,exp,model,var) = tempdata;
+			m.data(:,:,index_days_historical,exp,model,var) = tempdata;
 		end;
 
 		%====================	
 		%get future part
 		%====================	
 		for exp=1:length(exp_target);
-			if(strcmp(modelname(1:3),'Had'));
-				time_string='2006_2099';
-				index_years_fut=[2006:2099]-2006+1;
-			else;
-				time_string='2006_2100';
-				index_years_fut=[2006:2100]-2006+1;
-			end;
-			myURL=[pathDir,'agg_macav1metdata_',char(VAR_NAME(var_target(var))),'_',...
+			index_years_fut=[2006:2099]-2006+1;
+			time_string='2006_2099';
+			myURL=[pathDir,'agg_macav2metdata_',char(VAR_NAME(var_target(var))),'_',...
 				char(MODEL_NAME(model_target(model))),'_',...
 				 'r',num2str(RUN_NUM(model)),'i1p1_',...
-				char(EXP_NAME(exp_target(exp))),'_',char(time_string),'_WUSA.nc'];
+				char(EXP_NAME(exp_target(exp))),'_',char(time_string),'_CONUS_daily.nc'];
 			timeinfo = ncinfo(myURL,'time');
 			timeSize =timeinfo.Size;
 			vinfo = ncinfo(myURL,char(VAR_LONGNAME(var_target(var))));
 			vSize =vinfo.Size; %the dimensions are:lon,lat,time
 
-			%need to access just a small time slice first.. before getting the data (credit:Ian Pfingsten)
+			%need to access just a small time slice first.. before getting the data (credit:Ian Pfingsten)...warmup
 			tempdata=ncread(myURL,char(VAR_LONGNAME(var_target(var))),[1 1 1],[1 1 1],[1 1 1]);
 
 			start=[min(lon_index) min(lat_index) 1];
@@ -148,16 +141,13 @@ for var=1:length(var_target);
 			stride=[1 1 1];  %every year of data, all lat/lon in range
 			tempdata=ncread(myURL,char(VAR_LONGNAME(var_target(var))),start,count,stride);
 
-			if(var==5); %change daily precipitation_flux to daily precipitation in mm (MACAv1-METDATA only)
-				tempdata =tempdata*3600*24;
-			end;
+			%restructure so has dimensions lon,lat,days
+			time =ncread(pathname,'time');
+			[Y M D] =datevec(double(time)+datenum(1900,1,1));
+			tempdata=permute(tempdata,[2 1 3]); %switch dimension to lon,lat,days
 
-			%restructure so has dimensions lon,lat,days,years
-			tempdata = reshape(tempdata,length(lon),length(lat),365,timeSize/365);
-			%restructure so has dimensions lat,lon,days,years
-			tempdata=permute(tempdata,[2 1 3 4]);
-
-			m.data(:,:,:,index_years_fut,exp,model,var) = tempdata;
+                	%save a copy of the historical part for all future scenarios in array
+                        m.data(:,:,index_days_future,exp,model,var) = tempdata;
 
 		end;%exp
 	end;%model

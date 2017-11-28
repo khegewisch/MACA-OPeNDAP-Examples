@@ -1,7 +1,7 @@
 %Filename: 	OPeNDAPExample_TimeSeries_GeneralExample.m
 %Author:	K. Hegewisch (khegewisch@uidaho.edu, Mar 2015)
-%Updated: 	03/12/2017
-%Description: 	This script uses OPeNDAP to download the specified subset of a MACAv2METDATA dataset
+%Updated: 	02/01/2015
+%Description: 	This script uses OPeNDAP to download the specified subset of a MACA dataset
 %Requirements: 	MATLAB R2012a or later (which has native OPeNDAP support)
 %	       	Older matlab versions need to get OpenEarthTools
 %	       	For more information on using OPeNDAP in Matlab, 
@@ -29,7 +29,7 @@ exp_target=[1]; %specifices indidces of EXP_NAME below to extract
 %      SET OPENDAP PATH DIRECTORY
 %=============================================
 NKNTHREDDS='http://thredds.northwestknowledge.net:8080/thredds';
-REACCHTHREDDS='http://thredds.northwestknowledge.net:8080/thredds';
+REACCHTHREDDS='http://inside-dev1.nkn.uidaho.edu:8080/thredds';
 THREDDSDIR={[REACCHTHREDDS,'/dodsC/'];[NKNTHREDDS,'/dodsC/'];[REACCHTHREDDS,'/dodsC/'];};
 REGION_NAME={'WUSA';'CONUS';'CONUS';};
 %=============================================

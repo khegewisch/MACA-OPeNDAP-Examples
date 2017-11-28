@@ -1,15 +1,11 @@
-%Filename: 	OPeNDAPExample_TimeSeries_macav2livneh_AdvancedExample.m
-%Author: 	Heather Dinon Aldridge (hadinon@ncsu.edu)
-%Description: 	This script uses OPeNDAP to download the specified subset of the MACAv2-LIVNEH data
-%Requirements: 	R version ?
+%Filename: 	OPeNDAPExample_TimeSeries_macav1metdata_AdvancedExample.m
+%Author:	K. Hegewisch (khegewisch@uidaho.edu, Jun 2014)
+%Updated: 	01/01/2015
+%Description: 	This script uses OPeNDAP to download the specified subset of the MACAv1-METDATA data
+%Requirements: 	MATLAB R2012a or later (which has native OPeNDAP support)
 %	       	Older matlab versions need to get OpenEarthTools
 %	       	For more information on using OPeNDAP in Matlab, 
 %	       	see http://www.mathworks.com/help/matlab/ref/ncread.html
-
-
-UNDER CONSTRUCTION
-
-
 %=============================================
 %      SET TARGET DATA -modify only the parameters in this section
 %=============================================
@@ -26,12 +22,12 @@ outputFileName='maca_subset.mat'
 %=============================================
 %      SET OPENDAP PATH DIRECTORY
 %=============================================
-pathDir='http://thredds.northwestknowledge.net:8080/thredds/dodsC/'; %(this is for MACAv2-METDATA only)
+pathDir='http://inside-dev1.nkn.uidaho.edu:8080/thredds/dodsC/'; %(this is for MACAv1-METDATA only)
 %=============================================
 %      GET LAT/LON INDICES FOR GEOGRAPHICAL SUBSET
 %=============================================
 %look at sample file
-pathname=[pathDir,'macav2livneh_huss_BNU-ESM_r1i1p1_historical_1950-2005_CONUS_daily_aggregated.nc'];
+pathname=[pathDir,'agg_macav1metdata_huss_BNU-ESM_r1i1p1_historical_1950_2005_WUSA.nc'];
 loninfo = ncinfo(pathname,'lon');
 lonSize =loninfo.Size;
 latinfo = ncinfo(pathname,'lat');
@@ -95,7 +91,6 @@ for var=1:length(var_target);
 		vinfo = ncinfo(myURL,char(VAR_LONGNAME(var_target(var))));
 		vSize =vinfo.Size; %the dimensions are:lon,lat,time
 
-		%don't need to do this.. shouldn't have to do this at all anymore...
 		%need to access just a small time slice first.. before getting the data 
 		%(solution credit:Ian Pfingsten)
 		tempdata=ncread(myURL,char(VAR_LONGNAME(var_target(var))),[1 1 1],[1 1 1],[1 1 1]);

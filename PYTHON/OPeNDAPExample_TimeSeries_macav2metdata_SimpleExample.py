@@ -1,7 +1,7 @@
 #!/usr/bin/python
 %Filename: 	OPeNDAPExample_TimeSeries_macav2metdata_SimpleExample.py
 %Author:	K. Hegewisch (khegewisch@uidaho.edu)
-%Updated: 	01/01/2015
+%Updated: 	03/13/2016
 %Description: 	This script uses OPeNDAP to download the specified subset of the MACAv2-METDATA data
 %Requirements: 	This script was run using Python 2.7.3, the Enthought distribution (www.enthought.com)
 %	        Python comes with native OPeNDAP support.	
@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 #=========================================================
 #            SET TARGET DATA 
 #=========================================================
-day=1
+#day=1
 lat_target=45.0
 lon_target=360-117.0
 #=========================================================
@@ -31,8 +31,8 @@ datahandle=filehandle.variables['specific_humidity']
 #             GET DATA 
 #=========================================================
 #get data
-time_num=len(timehandle)
-timeindex=range(day-1,time_num,365)  #python starts arrays at 0
+time_num=365
+timeindex=range(0,time_num,1)  #python starts arrays at 0
 time=timehandle[timeindex]
 lat = lathandle[:]
 lon = lonhandle[:]
@@ -61,15 +61,13 @@ data = datahandle[timeindex,lat_index,lon_index]
 #=========================================================
 #              MAKE A PLOT
 #=========================================================
-yearref=1950
-years = np.arange(yearref,yearref+len(time))
+days = np.arange(0,len(time))
 fig = plt.figure()
 ax = fig.add_subplot(111)
-ax.set_xlabel(u'Year')
-ax.set_ylabel(u'Specific Humidity')
-ax.set_title(u'Specific Humidity on Day %d ,\n %4.2f\u00b0N, %4.2f\u00b0W' % (day,lat, abs(360-lon)))
-#ax.plot_date(x=time,y=data,fmt="b-")
+ax.set_xlabel(u'Day of Year')
+ax.set_ylabel(u'Specific Humidity(kg/kg)')
+ax.set_title(u'1950 Daily Specific Humidity(BNU-ESM) ,\n %4.2f\u00b0N, %4.2f\u00b0W' % (lat, abs(360-lon)))
 ax.ticklabel_format(style='plain')
-ax.plot(years,data,'b-')
+ax.plot(days,data,'b-')
 plt.savefig("myPythonGraph.png")
 plt.show()
