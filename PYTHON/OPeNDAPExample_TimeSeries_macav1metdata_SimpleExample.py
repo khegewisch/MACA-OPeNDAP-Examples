@@ -38,8 +38,8 @@ lat = lathandle[:]
 lon = lonhandle[:]
 #=========================================================
 #find indices of target lat/lon/day
-lat_index = (np.abs(lat-lat_array)).argmin()
-lon_index = (np.abs(lon-lon_array)).argmin()
+lat_index = (np.abs(lat-lat_target)).argmin()
+lon_index = (np.abs(lon-lon_target)).argmin()
 #check final is in right bounds
 if(lat[lat_index]>lat_target):
 	if(lat_index!=0):
