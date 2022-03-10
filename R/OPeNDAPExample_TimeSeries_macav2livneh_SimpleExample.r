@@ -34,10 +34,20 @@
   endcount <- v3$varsize[3] 
 
   ### DEFINE OUR POINT OF INTEREST 
+  lat_target = 45.5 
+  lon_target = 360 - 117.5  #MACA longitudes are east longitudes from the prime meridian
+
+  # READ THE LAT, LON ARRAYS FROM MACA
+  lat <- ncvar_get(nc, "lat")
+  lon <- ncvar_get(nc, "lon")
+
+  # FIGURE OUT WHAT INDICES IN LAT AND IN LON ARE CLOSEST TO THE LAT_TARGET/LON_TARGET
+  # I don't know how to do this in R. If someone knows, email khegewisch@ucmerced.edu and I'll add it here.
+
   ## NOTE: MAKE SURE TO CHECK WHETHER YOUR SOURCE STARTS COUNTING AT 0 OR 1
   ## e.g. ncdf4 PACKAGE STARTS COUNTING AT 1 BUT OPeNDAP DATASET ACCESS FORM STARTS AT 0:
-  lon=478
-  lat=176
+  index_lon=478
+  index_lat=176
 
   ## DEFINE OUR VARIABLE NAME 
   var="precipitation"
@@ -48,9 +58,10 @@
   ## FROM THE DOCUMENTATION... "If [start] not specified, reading starts at the beginning of the file (1,1,1,...)."
   ## AND "If [count] not specified and the variable does NOT have an unlimited dimension, the entire variable is read. 
   ## As a special case, the value "-1" indicates that all entries along that dimension should be read."
-  data <- ncvar_get(nc, var, start=c(lon,lat,1),count=c(1,1,endcount))
+  data <- ncvar_get(nc, var, start=c(index_lon,index_lat,1),count=c(1,1,endcount))
   ## READ THE TIME VARIABLE
   time <- ncvar_get(nc, "time", start=c(1),count=c(endcount))
+
   ## CONVERT TIME FROM "days since 1900-01-01" TO YYYY-MM-DD
   time=as.Date(time, origin="1900-01-01") ##note: assumes leap years! http://stat.ethz.ch/R-manual/R-patched/library/base/html/as.Date.html
   # PUT EVERYTHING INTO A DATA FRAME
@@ -60,5 +71,5 @@
   nc_close(nc)
 
   ## PLOT THE DATA 
-  plot(c$time,c$data,main=paste("Daily ",var," for ",c$time[1]," through ",c$time[nrow(c)], " at ",lat,",",lon,sep=""),xlab="Date",ylab="Precipitation (mm)")
+  plot(c$time,c$data,main=paste("Daily ",var," for ",c$time[1]," through ",c$time[nrow(c)], " at ",index_lat,",",index_lon,sep=""),xlab="Date",ylab="Precipitation (mm)")
   
