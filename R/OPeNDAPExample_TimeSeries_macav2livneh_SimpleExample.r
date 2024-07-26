@@ -42,7 +42,6 @@
   lon <- ncvar_get(nc, "lon")
 
   # FIGURE OUT WHAT INDICES IN LAT AND IN LON ARE CLOSEST TO THE LAT_TARGET/LON_TARGET
-  # I don't know how to do this in R. If someone knows, email khegewisch@ucmerced.edu and I'll add it here.
   diff_lat = abs(lat-lat_target)
   index_lat = which(diff_lat == min(diff_lat))
   diff_lon = abs(lon-lon_target)
