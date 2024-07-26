@@ -43,11 +43,20 @@
 
   # FIGURE OUT WHAT INDICES IN LAT AND IN LON ARE CLOSEST TO THE LAT_TARGET/LON_TARGET
   # I don't know how to do this in R. If someone knows, email khegewisch@ucmerced.edu and I'll add it here.
+  diff_lat = abs(lat-lat_target)
+  index_lat = which(diff_lat == min(diff_lat))
+  diff_lon = abs(lon-lon_target)
+  index_lon = which(diff_lon == min(diff_lon))
 
   ## NOTE: MAKE SURE TO CHECK WHETHER YOUR SOURCE STARTS COUNTING AT 0 OR 1
   ## e.g. ncdf4 PACKAGE STARTS COUNTING AT 1 BUT OPeNDAP DATASET ACCESS FORM STARTS AT 0:
-  index_lon=478
-  index_lat=176
+  ## This could affect if the above calculation of index_lat and index_lon is correct
+  #index_lon=478
+  #index_lat=176
+
+  #check this is close to 0
+  lat(index_lat) - lat_target
+  lon(index_lon) - lon_target
 
   ## DEFINE OUR VARIABLE NAME 
   var="precipitation"
